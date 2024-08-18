@@ -1,0 +1,68 @@
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  border: "unset";
+}
+
+:root {
+  --main-color: black;
+}
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  row-gap: 40px;
+  align-items: center;
+}
+
+.settings-panel {
+  min-width: 300px;
+
+  display: flex;
+  justify-content: space-between;
+}
+
+.sudoku-board {
+  min-width: 300px;
+  min-height: 300px;
+}
+
+.sudoku-row {
+  display: flex;
+  justify-content: space-around;
+}
+
+.sudoku-cell {
+  height: 2rem;
+  width: 2rem;
+
+  padding: 5px;
+  border: 1px solid black;
+
+  font-size: 1.1em;
+}
+
+.sudoku-row:nth-child(3n) {
+  margin-bottom: 1rem;
+}
+
+.sudoku-row:last-child {
+  margin-bottom: 0;
+}
+
+.sudoku-cell:nth-child(3n) {
+  margin-right: 1rem;
+}
+
+.sudoku-cell:last-child {
+  margin-right: 0;
+}
+
+.active-cell {
+  background-color: cadetblue;
+}
+
+.error-cell {
+  background-color: red;
+}
