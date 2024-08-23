@@ -31,6 +31,7 @@ export class Sudoku {
   }
 
   checkUserNumber(cellX, cellY, number) {
+    console.log(this.goal);
     return this.goal[cellX][cellY] === number;
   }
 

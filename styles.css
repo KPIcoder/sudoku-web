@@ -23,6 +23,29 @@
   justify-content: space-between;
 }
 
+.game-btn {
+  min-width: 50px;
+  padding: 5px;
+
+  border: none;
+  border-radius: 5px;
+}
+
+.play-btn {
+  background-color: green;
+  color: white;
+}
+
+.end-btn {
+  background-color: red;
+  color: white;
+}
+
+.choose-level-read-only {
+  background-color: grey;
+  pointer-events: none;
+}
+
 .sudoku-board {
   min-width: 300px;
   min-height: 300px;
