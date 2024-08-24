@@ -1,0 +1,39 @@
+export class Timer {
+  time;
+  _timer;
+  constructor() {
+    this.time = 0;
+  }
+
+  start(onTimeChange) {
+    this._timer = setInterval(() => {
+      this.time++;
+      if (onTimeChange) onTimeChange(this.format(this.time));
+    }, 1000);
+  }
+
+  end() {
+    clearInterval(this._timer);
+    this._timer = undefined;
+  }
+
+  format() {
+    // 00:00
+    const minutes = Math.floor(this.time / 60);
+    const seconds = this.time - minutes * 60;
+
+    const displayMinutes = this._isTwoDigits(minutes)
+      ? minutes.toString()
+      : `0${minutes}`;
+
+    const displaySeconds = this._isTwoDigits(seconds)
+      ? seconds.toString()
+      : `0${seconds}`;
+
+    return `${displayMinutes}:${displaySeconds}`;
+  }
+
+  _isTwoDigits(number) {
+    return number > 9;
+  }
+}

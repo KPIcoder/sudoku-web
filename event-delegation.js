@@ -7,6 +7,8 @@ const CLASSES = {
   playBtn: "play-btn",
   endBtn: "end-btn",
 
+  timer: "timer",
+
   level: "choose-level",
   levelReadOnly: "choose-level-read-only",
 
@@ -20,13 +22,27 @@ const classSelectors = Object.keys(CLASSES).reduce((acc, cur) => {
   return acc;
 }, {});
 
+export function setupListeners(onGameStart, onGameEnd) {
+  document.addEventListener("click", (e) => {
+    if (e.target.matches(classSelectors.playBtn)) {
+      handleClickPlay();
+      return onGameStart();
+    }
+
+    if (e.target.matches(classSelectors.endBtn)) {
+      handleClickEnd();
+      return onGameEnd();
+    }
+  });
+}
+
 export function handleClickPlay() {
   const button = document.querySelector(classSelectors.gameBtn);
   const levelSelector = document.querySelector(classSelectors.level);
 
   button.classList.replace("play-btn", "end-btn");
   button.innerText = "End";
-  levelSelector.classList.add(classSelectors.levelReadOnly);
+  levelSelector.classList.add(CLASSES.levelReadOnly);
 }
 
 export function handleClickEnd() {
@@ -36,6 +52,8 @@ export function handleClickEnd() {
   const cells = document.querySelectorAll(classSelectors.cell);
   cells.forEach((cell) => {
     cell.innerText = "";
+    cell.classList.remove(CLASSES.activeCell);
+    cell.classList.remove(CLASSES.errorCell);
     cell.setAttribute(ATTRIBUTES.editable, "false");
   });
   button.classList.replace(CLASSES.endBtn, CLASSES.playBtn);
@@ -99,6 +117,11 @@ export function makeCellUneditable(cell) {
 export function getCell(coords) {
   const [x, y] = coords;
   return document.getElementById(`cell-${x}-${y}`);
+}
+
+export function onTimeChange(displayedTime) {
+  const timerNode = document.querySelector(classSelectors.timer);
+  timerNode.innerText = `Time: ${displayedTime}`;
 }
 
 const parseCellId = (cellId) =>
