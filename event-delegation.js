@@ -59,7 +59,7 @@ export function handleClickEnd() {
   button.classList.replace(CLASSES.endBtn, CLASSES.playBtn);
   button.innerText = "Play";
 
-  levelSelector.classList.add(classSelectors.levelReadOnly);
+  levelSelector.classList.remove(CLASSES.levelReadOnly);
 }
 
 export function fillCell(coords, value) {

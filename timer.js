@@ -13,6 +13,7 @@ export class Timer {
   }
 
   end() {
+    this.time = 0;
     clearInterval(this._timer);
     this._timer = undefined;
   }
