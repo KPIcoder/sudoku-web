@@ -1,5 +1,6 @@
 // enum like
 export const EVENT_NAMES = {
+  setLevel: "setLevel",
   start: "start",
   prepareBoard: "prepareBoard",
   playMove: "playMove",

@@ -12,13 +12,19 @@ export class Game {
   constructor() {
     this.sudoku = new Sudoku();
     this.timer = new Timer();
-    this.prepareSudoku();
 
     messageBroker.subscribe(EVENT_NAMES.start, () => this.start());
     messageBroker.subscribe(EVENT_NAMES.end, () => this.end());
     messageBroker.subscribe(EVENT_NAMES.playMove, (...args) =>
       this.playMove(...args)
     );
+    messageBroker.subscribe(EVENT_NAMES.setLevel, (...args) =>
+      this.setLevel(...args)
+    );
+  }
+
+  setLevel(level) {
+    this.sudoku.setLevel(level);
   }
 
   prepareSudoku() {

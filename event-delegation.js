@@ -23,6 +23,8 @@ function handleClickPlay() {
   const button = document.querySelector(classSelectors.gameBtn);
   const levelSelector = document.querySelector(classSelectors.level);
 
+  messageBroker.publish(EVENT_NAMES.setLevel, parseInt(levelSelector.value));
+
   button.classList.replace("play-btn", "end-btn");
   button.innerText = "End";
   levelSelector.classList.add(CLASSES.levelReadOnly);
