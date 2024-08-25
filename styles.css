@@ -89,3 +89,16 @@
 .error-cell {
   background-color: red;
 }
+
+.error-anchor {
+  display: none;
+  margin: 40px auto;
+  max-width: 300px;
+  background-color: red;
+  color: white;
+  padding: 5px;
+
+  border-radius: 10px;
+
+  border: 1px solid black;
+}
