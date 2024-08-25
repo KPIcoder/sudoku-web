@@ -5,8 +5,8 @@ import { Game } from "./game.js";
 function main() {
   const game = new Game();
 
+  setupListeners();
   setupGlobalBoundary();
-  setupListeners(game.start.bind(game), game.end.bind(game));
 }
 
 main();

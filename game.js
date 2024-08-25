@@ -1,12 +1,8 @@
 import { Sudoku } from "./sudoku.js";
 import { Timer } from "./timer.js";
 
-import {
-  fillCell,
-  makeCellEditable,
-  listenToCellChanges,
-  onTimeChange,
-} from "./event-delegation.js";
+import { messageBroker } from "./message-broker.js";
+import { EVENT_NAMES } from "./constants.js";
 
 export class Game {
   timer;
@@ -17,6 +13,12 @@ export class Game {
     this.sudoku = new Sudoku();
     this.timer = new Timer();
     this.prepareSudoku();
+
+    messageBroker.subscribe(EVENT_NAMES.start, () => this.start());
+    messageBroker.subscribe(EVENT_NAMES.end, () => this.end());
+    messageBroker.subscribe(EVENT_NAMES.playMove, (...args) =>
+      this.playMove(...args)
+    );
   }
 
   prepareSudoku() {
@@ -24,18 +26,18 @@ export class Game {
   }
 
   start() {
-    for (let i = 0; i < this.gameBoard.length; i++) {
-      for (let j = 0; j < this.gameBoard.length; j++) {
-        const value = this.gameBoard[i][j];
-        listenToCellChanges(
-          [i, j],
-          this.sudoku.checkUserNumber.bind(this.sudoku)
-        );
-        if (value !== 0) fillCell([i, j], value);
-        else makeCellEditable([i, j]);
-      }
-    }
-    this.timer.start(onTimeChange);
+    this.prepareSudoku();
+    this.timer.start();
+    messageBroker.publish(EVENT_NAMES.prepareBoard, this.gameBoard);
+  }
+
+  playMove(coords, value) {
+    const [x, y] = coords;
+    const isValid = this.sudoku.checkUserNumber(x, y, value);
+
+    if (!isValid) return messageBroker.publish(EVENT_NAMES.wrongMove, coords);
+    if (this.sudoku.isSolved()) return messageBroker.publish(EVENT_NAMES.end);
+    return messageBroker.publish(EVENT_NAMES.rightMove, coords);
   }
 
   end() {

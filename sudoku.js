@@ -34,6 +34,15 @@ export class Sudoku {
     return this.goal[cellX][cellY] === number;
   }
 
+  isSolved() {
+    for (let i = 0; i < this.size; i++) {
+      for (let j = 0; j < this.size; j++) {
+        if (this.goal[i][j] !== this.board[i][j]) return false;
+      }
+    }
+    return true;
+  }
+
   solveSudoku() {
     this._solveSudoku();
 

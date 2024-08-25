@@ -1,42 +1,25 @@
-const ATTRIBUTES = {
-  editable: "contenteditable",
-};
+import {
+  EVENT_NAMES,
+  CLASSES,
+  ATTRIBUTES,
+  classSelectors,
+} from "./constants.js";
+import { messageBroker } from "./message-broker.js";
 
-const CLASSES = {
-  gameBtn: "game-btn",
-  playBtn: "play-btn",
-  endBtn: "end-btn",
-
-  timer: "timer",
-
-  level: "choose-level",
-  levelReadOnly: "choose-level-read-only",
-
-  cell: "sudoku-cell",
-  activeCell: "active-cell",
-  errorCell: "error-cell",
-};
-
-const classSelectors = Object.keys(CLASSES).reduce((acc, cur) => {
-  acc[cur] = "." + CLASSES[cur];
-  return acc;
-}, {});
-
-export function setupListeners(onGameStart, onGameEnd) {
+export function setupListeners() {
   document.addEventListener("click", (e) => {
     if (e.target.matches(classSelectors.playBtn)) {
-      handleClickPlay();
-      return onGameStart();
+      return messageBroker.publish(EVENT_NAMES.start);
     }
 
     if (e.target.matches(classSelectors.endBtn)) {
       handleClickEnd();
-      return onGameEnd();
+      return messageBroker.publish(EVENT_NAMES.end);
     }
   });
 }
 
-export function handleClickPlay() {
+function handleClickPlay() {
   const button = document.querySelector(classSelectors.gameBtn);
   const levelSelector = document.querySelector(classSelectors.level);
 
@@ -45,7 +28,18 @@ export function handleClickPlay() {
   levelSelector.classList.add(CLASSES.levelReadOnly);
 }
 
-export function handleClickEnd() {
+function prepareBoard(board) {
+  for (let i = 0; i < board.length; i++) {
+    for (let j = 0; j < board.length; j++) {
+      const value = board[i][j];
+      listenToCellChanges([i, j]);
+      if (value !== 0) fillCell([i, j], value);
+      else makeCellEditable([i, j]);
+    }
+  }
+}
+
+function handleClickEnd() {
   const button = document.querySelector(classSelectors.gameBtn);
   const levelSelector = document.querySelector(classSelectors.level);
 
@@ -62,67 +56,75 @@ export function handleClickEnd() {
   levelSelector.classList.remove(CLASSES.levelReadOnly);
 }
 
-export function fillCell(coords, value) {
+function fillCell(coords, value) {
   const cell = getCell(coords);
 
   cell.innerText = value;
 }
-
-export function listenToCellChanges(coords, checker) {
+function listenToCellChanges(coords) {
   const cell = getCell(coords);
-  cell.addEventListener("click", () => selectCell(coords, checker));
+  cell.addEventListener("click", () => selectCell(coords));
 }
 
-export function selectCell(coords, checker) {
+function selectCell(coords) {
   const cell = getCell(coords);
   const isEditable = cell.getAttribute(ATTRIBUTES.editable) === "true";
 
   if (!isEditable) throw new Error("You cannot select a filled cell");
-  cell.addEventListener("keyup", (e) => handleKeyUp(e, checker));
+  cell.addEventListener("keyup", (e) => handleKeyUp(e));
 
   cell.classList.add(CLASSES.activeCell);
 }
 
-export function handleKeyUp(event, checker) {
+function handleKeyUp(event) {
   const { id, innerText: value } = event.target;
   const cellCoords = parseCellId(id);
   const cell = getCell(cellCoords);
+
   if (value) {
     cell.blur();
-    const isValid = checker(...cellCoords, parseInt(value));
-
-    return isValid ? onRightKeyUp(cell) : onWrongKeyUp(cell);
+    messageBroker.publish(EVENT_NAMES.playMove, cellCoords, parseInt(value));
   }
 
   if (event.key === "Escape") cell.blur();
 }
 
-function onRightKeyUp(cell) {
+function onRightKeyUp(coords) {
+  const cell = getCell(coords);
+  cell.classList.remove(CLASSES.errorCell);
   makeCellUneditable(cell);
 }
 
-function onWrongKeyUp(cell) {
+function onWrongKeyUp(coords) {
+  const cell = getCell(coords);
   cell.classList.add(CLASSES.errorCell);
 }
 
-export function makeCellEditable(coords) {
+function makeCellEditable(coords) {
   const cell = getCell(coords);
   return cell.setAttribute(ATTRIBUTES.editable, "true");
 }
 
-export function makeCellUneditable(cell) {
+function makeCellUneditable(cell) {
   return cell.setAttribute(ATTRIBUTES.editable, "false");
 }
 
-export function getCell(coords) {
+function getCell(coords) {
   const [x, y] = coords;
   return document.getElementById(`cell-${x}-${y}`);
 }
 
-export function onTimeChange(displayedTime) {
+function onTimeChange(displayedTime) {
   const timerNode = document.querySelector(classSelectors.timer);
   timerNode.innerText = `Time: ${displayedTime}`;
 }
+
+messageBroker.subscribe(EVENT_NAMES.timeChange, onTimeChange);
+messageBroker.subscribe(EVENT_NAMES.rightMove, onRightKeyUp);
+messageBroker.subscribe(EVENT_NAMES.wrongMove, onWrongKeyUp);
+messageBroker.subscribe(EVENT_NAMES.start, handleClickPlay);
+messageBroker.subscribe(EVENT_NAMES.end, handleClickEnd);
+messageBroker.subscribe(EVENT_NAMES.prepareBoard, prepareBoard);
 
 const parseCellId = (cellId) =>
   cellId
