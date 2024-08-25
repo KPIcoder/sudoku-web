@@ -36,6 +36,7 @@ export class Game {
     const isValid = this.sudoku.checkUserNumber(x, y, value);
 
     if (!isValid) return messageBroker.publish(EVENT_NAMES.wrongMove, coords);
+    this.sudoku.board[x][y] = value;
     if (this.sudoku.isSolved()) return messageBroker.publish(EVENT_NAMES.end);
     return messageBroker.publish(EVENT_NAMES.rightMove, coords);
   }
